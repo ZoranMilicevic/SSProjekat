@@ -3,8 +3,10 @@
 #include <unordered_map> 
 #include <string>
 #include<regex>
+#include <vector>
 
 #include "SymbolTable.h"
+#include "Section.h"
 
 using namespace std;
 
@@ -28,7 +30,7 @@ private:
 	int locationCounter;
 	
 	SymbolTable * table;
-
+	vector<Section> sections;
 
 
 };
