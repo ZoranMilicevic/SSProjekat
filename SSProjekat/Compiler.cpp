@@ -121,7 +121,7 @@ void Compiler::firstRun(ifstream &inFile) {
 			}
 
 			else if (regex_search(words[i], regexMap["INSTRUCTION"])) {
-					
+				//dasdasd
 				
 			}
 
