@@ -3,6 +3,7 @@
 
 #include <string>
 #include <map>
+#include <iostream>
 
 #include "Symbol.h"
 
@@ -18,6 +19,8 @@ public:
 
 	bool put(string key, Symbol* sym);
 	Symbol* get(string key);
+
+	void print();
 };
 
 

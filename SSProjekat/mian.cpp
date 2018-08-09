@@ -29,7 +29,11 @@ int main(int argc, char** argv) {
 	Compiler* c = new Compiler();
 	c->compile(inFile, outFile);
 	delete c;
+	
+	cout << "Success" << endl;
 
+	int in;
+	cin >> in;
 	return 0;
 
 }

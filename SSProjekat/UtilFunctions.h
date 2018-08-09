@@ -14,13 +14,14 @@ using namespace std;
 class UtilFunctions{
 public:
 	static vector<string> split(string line);
-	static int getSectionNumber(string section);
 	static int getDirectiveSize(string directive);
 
-	static string decimalToBinary(int number);
-	static string decimalToHexa(int number);
+	static int getSectionNumber(string section);
 	static string binaryToHexa(string binary);
-}
+	static string decimalToHexa(int number);
+	static string decimalToBinary(int number);
+
+};
 
 #endif
 

@@ -1,6 +1,9 @@
 #include "Compiler.h"
 #include "UtilFunctions.h"
 
+#include <iostream>
+#include <sstream>
+
 using namespace std;
 
 map<string, regex> Compiler::regexMap = {
@@ -8,9 +11,9 @@ map<string, regex> Compiler::regexMap = {
 	{"ANYTHING", regex("")},
 	{"LINEBREAK", regex("\\r")},
 	{"LABEL", regex("^([a-zA-Z_][a-zA-Z0-9]*):$") },
-	{"SECTION", regex("^\.(text|data|bss|rodata)$")},
-	{"DIRECTIVE", regex("^\.(char|word|long|skip|align)$")},
-	{"INSTRUCTION", regex("^(eq|ne|gt|al)(add|sub|mul|div|cmp|and|or|not|test|push|pop|call|iret|mov|shl|shr)$")},
+	{"SECTION", regex("^\\.(text|data|bss|rodata)$")},
+	{"DIRECTIVE", regex("^\\.(char|word|long|skip|align)$")},
+	{"INSTRUCTION", regex("^(eq|ne|gt|al)(add|sub|mul|div|cmp|and|or|not|test|push|pop|call|iret|mov|shl|shr)$")}
 };
 
 Compiler::Compiler() {
@@ -29,11 +32,12 @@ Compiler::~Compiler() {
 void Compiler::compile(ifstream &inFile, ofstream &outFile) {
 	try{
 		firstRun(inFile);
+		table->print();
 		secondRun();
 		writeObjectFile(outFile);
 	}
 	catch (exception &e) {
-		cerr << e.what() << endl;
+		cout << e.what() << endl;
 	}
 }
 
@@ -53,7 +57,7 @@ void Compiler::firstRun(ifstream &inFile) {
 				string labelName = words[i];
 
 				Symbol* sym = table->get(labelName);
-				if (sym != 0) throw new runtime_error("ERROR: Section can't be defined more tah once!");
+				if (sym != 0) throw new runtime_error("ERROR: Section can't be defined more than once!");
 
 				//SAVE THE CURRENT SECTION
 				if (currentSection != "") {
@@ -72,7 +76,7 @@ void Compiler::firstRun(ifstream &inFile) {
 			}
 
 			else if (regex_search(words[i], regexMap["LABEL"])) {
-				string labelName = words[i];
+				string labelName = words[i].substr(0, words[i].size() - 1);
 
 				Symbol* sym = table->get(labelName);
 				if (sym != 0) {
@@ -91,9 +95,9 @@ void Compiler::firstRun(ifstream &inFile) {
 				string name = words[i];
 				if (name == ".skip" || name == ".align") {
 					i++;
-					int k;
+					int k=0;
 					try {
-						int k = stoi(words[i]);
+						k = stoi(words[i]);
 					}
 					catch (exception e) {
 						throw new runtime_error("ERROR: Invalid argument for directives .skip or .align!");
@@ -101,7 +105,7 @@ void Compiler::firstRun(ifstream &inFile) {
 					if (name == ".skip") locationCounter += k;
 					else if (name == ".align") {
 						if (k == 0) continue;
-						if (k & (k - 1) == 0) {
+						if ((k & (k - 1)) == 0) {
 							if (locationCounter / k * k != locationCounter) locationCounter = (locationCounter / k + 1) * k;
 						}
 						else throw new runtime_error("ERROR: Invalid argument for .skip directive, argument must be a power of 2");
@@ -109,8 +113,9 @@ void Compiler::firstRun(ifstream &inFile) {
 				}
 				else if (name == ".char" || name == ".word" || name == ".long") {
 					int size = UtilFunctions::getDirectiveSize(name);
-					int r;
-					while (words[i] != "\n" || words[i] != "\r") {
+					int r = 0;
+					i++;
+					while ( i<words.size() && (words[i] != "\n" || words[i] != "\r") ) {
 						if (words[i] != " ")r++;
 						i++;
 					}
@@ -121,13 +126,12 @@ void Compiler::firstRun(ifstream &inFile) {
 			}
 
 			else if (regex_search(words[i], regexMap["INSTRUCTION"])) {
-				//dasdasd
+				locationCounter += 2;
 				
 			}
 
 			else continue;
 		}
-
 
 	}
 	Section* s = new Section(currentSection, startOfCurrentSection, locationCounter);
