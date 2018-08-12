@@ -44,7 +44,6 @@ void Compiler::compile(ifstream &inFile, ofstream &outFile) {
 
 void Compiler::firstRun(ifstream &inFile) {
 	string line;
-	smatch sm;
 	while (getline(inFile, line)) {
 		vector<string> words = UtilFunctions::split(line);
 
@@ -140,7 +139,14 @@ void Compiler::firstRun(ifstream &inFile) {
 }
 
 void Compiler::secondRun(ifstream &inFile) {
-
+	string line;
+	while (getline(inFile, line)) {
+		vector<string> words = UtilFunctions::split(line);
+		for (vector<string>::size_type i = 0; i < words.size(); i++) {
+			
+		
+		}
+	}
 
 }
 
