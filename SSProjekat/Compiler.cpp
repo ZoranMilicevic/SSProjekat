@@ -13,7 +13,9 @@ map<string, regex> Compiler::regexMap = {
 	{"LABEL", regex("^([a-zA-Z_][a-zA-Z0-9]*):$") },
 	{"SECTION", regex("^\\.(text|data|bss|rodata)$")},
 	{"DIRECTIVE", regex("^\\.(char|word|long|skip|align)$")},
-	{"INSTRUCTION", regex("^(eq|ne|gt|al)(add|sub|mul|div|cmp|and|or|not|test|push|pop|call|iret|mov|shl|shr)$")}
+	{"INSTRUCTION", regex("^(eq|ne|gt|al)(add|sub|mul|div|cmp|and|or|not|test|push|pop|call|iret|mov|shl|shr)$")},
+	{"ADDRESSING_SIGNS", regex("[\\&|\\*|\\[|\\$]")},
+	{"IMMEDIATE_ADDRESSING", regex("^([0-9]+)$")}
 };
 
 Compiler::Compiler() {
@@ -33,8 +35,7 @@ void Compiler::compile(ifstream &inFile, ofstream &outFile) {
 	try{
 		firstRun(inFile);
 		table->print();
-		secondRun();
-		writeObjectFile(outFile);
+		secondRun(inFile);
 	}
 	catch (exception &e) {
 		cout << e.what() << endl;
@@ -47,7 +48,7 @@ void Compiler::firstRun(ifstream &inFile) {
 	while (getline(inFile, line)) {
 		vector<string> words = UtilFunctions::split(line);
 
-		for (vector<string>::size_type i = 0; i != words.size(); i++) {
+		for (vector<string>::size_type i = 0; i < words.size(); i++) {
 
 			if (words[i] == "\n" || words[i] == "\r")break; //if end of line
 			else if (words[i] == " ") continue; //if there are more than one spaces
@@ -113,21 +114,21 @@ void Compiler::firstRun(ifstream &inFile) {
 				}
 				else if (name == ".char" || name == ".word" || name == ".long") {
 					int size = UtilFunctions::getDirectiveSize(name);
-					int r = 0;
-					i++;
-					while ( i<words.size() && (words[i] != "\n" || words[i] != "\r") ) {
-						if (words[i] != " ")r++;
-						i++;
-					}
-					i--;
-					locationCounter += r * size;
+					int k =words.size() - i - 1;
+					locationCounter += k * size;
 				}
-				continue;
+				break;
 			}
 
 			else if (regex_search(words[i], regexMap["INSTRUCTION"])) {
 				locationCounter += 2;
-				
+				for (int k = i + 1; k < words.size(); k++) {
+					if ( regex_search(words[k], regexMap["ADDRESSING_SIGNS"]) || regex_search(words[k], regexMap["IMMEDIATE_ADDRESSING"])) {
+						locationCounter += 2;
+						break;
+					}
+				}
+				break;
 			}
 
 			else continue;
@@ -138,13 +139,9 @@ void Compiler::firstRun(ifstream &inFile) {
 	sections.push_back(*s);
 }
 
-void Compiler::secondRun() {
+void Compiler::secondRun(ifstream &inFile) {
 
 
 }
 
-void Compiler::writeObjectFile(ofstream &outFile) {
-	
-
-}
 

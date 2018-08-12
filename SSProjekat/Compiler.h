@@ -21,8 +21,7 @@ public:
 
 private:
 	void firstRun(ifstream &inFile);
-	void secondRun();
-	void writeObjectFile(ofstream &outFile);
+	void secondRun(ifstream &inFile);
 
 	string currentSection;
 	int startOfCurrentSection;

@@ -3,13 +3,27 @@
 using namespace std;
 
 vector<string> UtilFunctions::split(string line) {
-	stringstream ss(line);
 	vector<string> ret;
-	string word;
+	string word="";
 
+	/*
 	while (getline(ss, word, ' ')) {
 		ret.push_back(word);
 	}
+	*/
+
+	for (int i = 0; i < line.size(); i++) {
+		if (line.at(i) != ' ' && line.at(i) != ',')word += line.at(i);
+		else if(word!="") {
+			ret.push_back(word);
+			word = "";
+		}
+	}
+
+	if (word != "") {
+		ret.push_back(word);
+	}
+
 
 	return ret;
 }

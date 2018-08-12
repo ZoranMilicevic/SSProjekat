@@ -34,6 +34,7 @@ int main(int argc, char** argv) {
 
 	int in;
 	cin >> in;
+
 	return 0;
 
 }
