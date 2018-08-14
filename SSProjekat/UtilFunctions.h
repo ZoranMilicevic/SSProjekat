@@ -21,6 +21,7 @@ public:
 	static string decimalToHexa(int number);
 	static string decimalToBinary(int number);
 
+	static string generateCode(int, int);
 };
 
 #endif

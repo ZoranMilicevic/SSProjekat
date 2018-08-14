@@ -118,6 +118,7 @@
     <ClCompile Include="Compiler.cpp" />
     <ClCompile Include="Instructions.cpp" />
     <ClCompile Include="mian.cpp" />
+    <ClCompile Include="RelocationSymbolTable.cpp" />
     <ClCompile Include="SymbolTable.cpp" />
     <ClCompile Include="UtilFunctions.cpp" />
   </ItemGroup>
@@ -125,6 +126,7 @@
     <ClInclude Include="Compiler.h" />
     <ClInclude Include="Instruction.h" />
     <ClInclude Include="RelocationSymbol.h" />
+    <ClInclude Include="RelocationSymbolTable.h" />
     <ClInclude Include="Section.h" />
     <ClInclude Include="Symbol.h" />
     <ClInclude Include="SymbolTable.h" />

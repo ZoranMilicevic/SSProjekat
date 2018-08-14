@@ -1,5 +1,6 @@
 #include "Compiler.h"
 #include "UtilFunctions.h"
+#include "Instruction.h"
 
 #include <iostream>
 #include <sstream>
@@ -13,17 +14,25 @@ map<string, regex> Compiler::regexMap = {
 	{"LABEL", regex("^([a-zA-Z_][a-zA-Z0-9]*):$") },
 	{"SECTION", regex("^\\.(text|data|bss|rodata)$")},
 	{"DIRECTIVE", regex("^\\.(char|word|long|skip|align)$")},
-	{"INSTRUCTION", regex("^(eq|ne|gt|al)(add|sub|mul|div|cmp|and|or|not|test|push|pop|call|iret|mov|shl|shr)$")},
+	{"GLOBAL", regex("^\\.global$")},
+	{"INSTRUCTION", regex("^(eq|ne|gt|al)(add|sub|mul|div|cmp|and|or|not|test|push|pop|call|iret|mov|shl|shr|ret|jmp)$")},
 	{"ADDRESSING_SIGNS", regex("[\\&|\\*|\\[|\\$]")},
 	{"IMMEDIATE_ADDRESSING", regex("^([0-9]+)$")}
 };
 
 Compiler::Compiler() {
 	table = new SymbolTable();
+	relocationTable = new RelocationSymbolTable();
 	currentSection = "";
 	locationCounter = 0;
 	number = 0;
 	startOfCurrentSection = 0;
+
+	generatedCode = {
+		{".text", ""},
+		{".data", ""},
+		{".rodata", ""}
+	};
 }
 
 Compiler::~Compiler() {
@@ -81,7 +90,12 @@ void Compiler::firstRun(ifstream &inFile) {
 				Symbol* sym = table->get(labelName);
 				if (sym != 0) {
 					if (sym->getLocGlo() == "local") throw new runtime_error("ERROR: There can't be two or more symbols with the same name!");
-					else sym->setOffset(locationCounter);
+					else {
+						sym->setOffset(locationCounter);
+						sym->setSection(currentSection);
+						sym->setNumber(number);
+						sym->setLocGlo("global");
+					}
 				}
 				else {
 					Symbol* newSym = new Symbol(labelName, currentSection, locationCounter, "local", number);
@@ -119,6 +133,20 @@ void Compiler::firstRun(ifstream &inFile) {
 				break;
 			}
 
+			else if (regex_search(words[i], regexMap["GLOBAL"])) {
+				for (int k = i + 1; k < words.size(); k++) {
+					string labelName = words[k];
+					Symbol* sym = table->get(labelName);
+
+					if (sym != 0) sym->setLocGlo("global");
+					else {
+						sym = new Symbol(labelName, currentSection, -1, "global", number);
+						table->put(labelName, sym);
+					}
+
+				}
+			}
+
 			else if (regex_search(words[i], regexMap["INSTRUCTION"])) {
 				locationCounter += 2;
 				for (int k = i + 1; k < words.size(); k++) {
@@ -140,10 +168,62 @@ void Compiler::firstRun(ifstream &inFile) {
 
 void Compiler::secondRun(ifstream &inFile) {
 	string line;
+	currentSection = "";
+	locationCounter = 0;
+	number = 0;
+	startOfCurrentSection = 0;
+
 	while (getline(inFile, line)) {
 		vector<string> words = UtilFunctions::split(line);
 		for (vector<string>::size_type i = 0; i < words.size(); i++) {
+			if (regex_search(words[i], regexMap["INSTRUCTION"])) {
+				if (currentSection != ".text") {
+					throw new runtime_error("ERROR: Instructions must be in .text section");
+					return;
+				}
+				else if (words[i]=="eqiret" || words[i] == "neiret" || words[i] =="gtiret" || words[i] == "aliret") {
+					string code = UtilFunctions::binaryToHexa(Instruction::instructions[words[i]]->getOpcode() + "0000000000");
+					string gen = generatedCode[currentSection];
+					gen = gen + code;
+					break;
+				}
 			
+			}
+
+			if (regex_search(words[i], regexMap["SECTION"])) {
+				startOfCurrentSection = locationCounter;
+				currentSection = words[i];
+				continue;
+			}
+
+			else if (regex_search(words[i], regexMap["DIRECTIVE"])) {
+				int size = UtilFunctions::getDirectiveSize(words[i]);
+				string name = words[i];
+				if (name == ".skip" || name == ".align") {
+					i++;
+					int k = 0;
+					try {
+						k = stoi(words[i]);
+					}
+					catch (exception e) {
+						throw new runtime_error("ERROR: Invalid argument for directives .skip or .align!");
+					}
+					if (name == ".skip") locationCounter += k;
+					else if (name == ".align") {
+						if (k == 0) continue;
+						if ((k & (k - 1)) == 0) {
+							if (locationCounter / k * k != locationCounter) locationCounter = (locationCounter / k + 1) * k;
+						}
+						else throw new runtime_error("ERROR: Invalid argument for .skip directive, argument must be a power of 2");
+					}
+				}
+				else if (name == ".char" || name == ".word" || name == ".long") {
+					
+				
+				}
+
+			}
+			else continue;
 		
 		}
 	}

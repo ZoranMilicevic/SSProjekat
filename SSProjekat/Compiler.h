@@ -6,6 +6,7 @@
 #include <vector>
 
 #include "SymbolTable.h"
+#include "RelocationSymbolTable.h"
 #include "Section.h"
 
 using namespace std;
@@ -31,7 +32,8 @@ private:
 	SymbolTable * table;
 	vector<Section> sections;
 
-
+	RelocationSymbolTable* relocationTable;
+	map<string, string> generatedCode;
 
 
 };

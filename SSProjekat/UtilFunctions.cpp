@@ -121,3 +121,39 @@ int UtilFunctions::getSectionNumber(string section) {
 }
 
 
+string UtilFunctions::generateCode(int num, int size) {
+	string hex = decimalToHexa(num);
+
+	if (size == 4) {
+		if (hex.size() > 2) {
+			throw new runtime_error("ERROR: too big");
+			return;
+		}
+		string ret;
+		ret = hex.at(0) + hex.at(1) + hex.at(2) + hex.at(3) + hex.at(4) + hex.at(5) + hex.at(6) + hex.at(7);
+		return ret;
+	}
+
+	else if (size == 2) {
+		if (hex.size() > 2) {
+			throw new runtime_error("ERROR: too big");
+			return;
+		}
+		string ret;
+		ret = hex.at(0) + hex.at(1) + hex.at(2) + hex.at(3);
+		return ret;
+	}
+
+	else if (size == 1) {
+		if (hex.size() > 2) {
+			throw new runtime_error("ERROR: too big");
+			return;
+		}
+		string ret;
+		ret = hex.at(0) + hex.at(1);
+		return ret;
+	}
+
+	
+}
+
