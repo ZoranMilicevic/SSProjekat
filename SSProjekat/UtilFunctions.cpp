@@ -14,13 +14,13 @@ vector<string> UtilFunctions::split(string line) {
 
 	for (int i = 0; i < line.size(); i++) {
 		if (line.at(i) != ' ' && line.at(i) != ',')word += line.at(i);
-		else if(word!="") {
+		else if(word!="" && word!="\n") {
 			ret.push_back(word);
 			word = "";
 		}
 	}
 
-	if (word != "") {
+	if (word != "" && word != "\n") {
 		ret.push_back(word);
 	}
 
@@ -32,13 +32,23 @@ int UtilFunctions::getDirectiveSize(string directive) {
 	if (directive == ".char") return 1;
 	else if (directive == ".word") return 2;
 	else if (directive == ".long") return 4;
+	else throw new runtime_error("ERROR: Directive with that name does not exist!");
+	return 0;
+}
+
+int UtilFunctions::getSectionNumber(string section) {
+	if (section == ".text") return 1;
+	else if (section == ".data") return 2;
+	else if (section == ".rodata") return 3;
+	else if (section == ".bss") return 4;
+	else throw new runtime_error("ERROR: Section with that name does not exist");
 	return 0;
 }
 
 string UtilFunctions::decimalToBinary(int number) {
 	string bin = "";
 	while (number != 0) {
-		char c = number % 2 ? '0' : '1';
+		char c = number % 2 ? '1' : '0';
 		bin = c + bin;
 		number = number / 2;
 	}
@@ -112,22 +122,12 @@ string UtilFunctions::binaryToHexa(string binary) {
 	return "hex";
 }
 
-int UtilFunctions::getSectionNumber(string section) {
-	if (section == ".text") return 1;
-	else if (section == ".data") return 2;
-	else if (section == ".rodata") return 3;
-	else if (section == ".bss") return 4;
-	else return -1;
-}
-
-
 string UtilFunctions::generateCode(int num, int size) {
 	string hex = decimalToHexa(num);
 
 	if (size == 4) {
 		if (hex.size() > 2) {
 			throw new runtime_error("ERROR: too big");
-			return;
 		}
 		string ret;
 		ret = hex.at(0) + hex.at(1) + hex.at(2) + hex.at(3) + hex.at(4) + hex.at(5) + hex.at(6) + hex.at(7);
@@ -137,7 +137,6 @@ string UtilFunctions::generateCode(int num, int size) {
 	else if (size == 2) {
 		if (hex.size() > 2) {
 			throw new runtime_error("ERROR: too big");
-			return;
 		}
 		string ret;
 		ret = hex.at(0) + hex.at(1) + hex.at(2) + hex.at(3);
@@ -147,7 +146,6 @@ string UtilFunctions::generateCode(int num, int size) {
 	else if (size == 1) {
 		if (hex.size() > 2) {
 			throw new runtime_error("ERROR: too big");
-			return;
 		}
 		string ret;
 		ret = hex.at(0) + hex.at(1);

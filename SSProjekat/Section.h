@@ -10,16 +10,15 @@ private:
 	string name;
 	int length;
 	int start;
-	int end;
+
 
 public:
 	Section() {}
 
-	Section(string name, int start, int end) {
+	Section(string name, int start, int length) {
 		this->name = name;
 		this->start = start;
-		this->end = end;
-		this->length = end - start;
+		this->length = length;
 	}
 	
 	~Section() {}
@@ -48,13 +47,6 @@ public:
 		this->start = start;
 	}
 
-	int getEnd() {
-		return this->end;
-	}
-
-	void setEnd(int end) {
-		this->end = end;
-	}
 };
 
 #endif

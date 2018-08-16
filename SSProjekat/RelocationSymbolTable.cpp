@@ -3,18 +3,13 @@
 using namespace std;
 
 bool RelocationSymbolTable::put(string key, RelocationSymbol* sym) {
-	RelocationSymbol* rs = table[key];
-	if (rs != 0) {
-		return 0;
-	}
-	table[key] = sym;
+	vector<RelocationSymbol> rs = table[key];
+	rs.push_back(*sym);
 	return 1;
 }
 
-RelocationSymbol* RelocationSymbolTable::get(string key) {
-	RelocationSymbol* sym = table[key];
-
-	if (sym == 0)return 0;
+vector<RelocationSymbol> RelocationSymbolTable::get(string key) {
+	vector<RelocationSymbol> sym = table[key];
 	return sym;
 }
 

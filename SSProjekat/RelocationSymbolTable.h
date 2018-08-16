@@ -4,19 +4,20 @@
 #include "RelocationSymbol.h"
 #include <map>
 #include <string>
+#include <vector>
 
 using namespace std;
 
 class RelocationSymbolTable {
 private:
-	map<string, RelocationSymbol*> table;
+	map<string, vector<RelocationSymbol>> table;
 
 public:
 	RelocationSymbolTable() {}
 	~RelocationSymbolTable() {}
 
 	bool put(string key, RelocationSymbol* sym);
-	RelocationSymbol* get(string key);
+	vector<RelocationSymbol> get(string key);
 
 	void print();
 

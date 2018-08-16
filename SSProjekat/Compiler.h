@@ -24,8 +24,11 @@ private:
 	void firstRun(ifstream &inFile);
 	void secondRun(ifstream &inFile);
 
+	void process_first_operand(string* operation, string* op, string* src, bool* flag, string* value);
+	void process_second_operand(string* operation, string* op, string* src, bool* flag, string* value);
+	string findAddressing(string op);
+
 	string currentSection;
-	int startOfCurrentSection;
 	int number;
 	int locationCounter;
 	

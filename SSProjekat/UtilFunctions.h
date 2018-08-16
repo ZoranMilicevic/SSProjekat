@@ -22,6 +22,7 @@ public:
 	static string decimalToBinary(int number);
 
 	static string generateCode(int, int);
+
 };
 
 #endif
