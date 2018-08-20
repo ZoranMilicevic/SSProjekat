@@ -15,6 +15,10 @@ int main(int argc, char** argv) {
 
 	ifstream inFile(argv[1]);
 	ofstream outFile(argv[2]);
+	int startAddress = 3;
+	if (argc > 3) {
+		
+	}
 
 	if (!inFile.is_open()) {
 		cerr << "There was an error while opening the input file" << endl;
@@ -27,7 +31,7 @@ int main(int argc, char** argv) {
 	}
 
 	Compiler* c = new Compiler();
-	c->compile(inFile, outFile);
+	c->compile(inFile, outFile, startAddress);
 	delete c;
 	
 	cout << "Success" << endl;

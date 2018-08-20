@@ -17,11 +17,11 @@ Symbol* SymbolTable::get(string key) {
 }
 
 void SymbolTable::print() {
-	cout << "Label" << "\t" << "Section" << "\t" << "offset" << "\t" << "LocGlo" << "\t" << "number" << endl;
+	cout << "Label" << "\t\t" << "Section" << "\t\t" << "offset" << "\t\t" << "LocGlo" << "\t\t" << "number" << endl;
 	cout << "--------------------------------------------------------------------------" << endl;
 	for (map<string, Symbol*>::iterator it = table.begin(); it != table.end(); it++ ) {
 		Symbol * s = it->second;
-		cout << s->getLabel() << "\t" << s->getSection() << "\t" << s->getOffset() << "\t" << s->getLocGlo() << "\t" << s->getNumber() << endl;
+		cout << s->getLabel() << "\t\t" << s->getSection() << "\t\t" << s->getOffset() << "\t\t" << s->getLocGlo() << "\t\t" << s->getNumber() << endl;
 	}
 	
 }

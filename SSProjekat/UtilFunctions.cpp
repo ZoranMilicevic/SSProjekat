@@ -66,30 +66,30 @@ string UtilFunctions::decimalToHexa(int number) {
 		return hexa;
 	}
 	else if (number < 0) {
-		unsigned int neo = number;
-		bitset<16> consta(neo);
+		short n = number;
+		bitset<16> consta(n);
 		return binaryToHexa(consta.to_string());
 	}
 
 	while (number > 0) {
 		int remainder = number % 16;
 		switch (remainder) {
-		case 0: hexa = "0" + hexa; break;
-		case 1: hexa = "1" + hexa; break;
-		case 2: hexa = "2" + hexa; break;
-		case 3: hexa = "3" + hexa; break;
-		case 4: hexa = "4" + hexa; break;
-		case 5: hexa = "5" + hexa; break;
-		case 6: hexa = "6" + hexa; break;
-		case 7: hexa = "7" + hexa; break;
-		case 8: hexa = "8" + hexa; break;
-		case 9: hexa = "9" + hexa; break;
-		case 10: hexa = "A" + hexa; break;
-		case 11: hexa = "B" + hexa; break;
-		case 12: hexa = "C" + hexa; break;
-		case 13: hexa = "D" + hexa; break;
-		case 14: hexa = "E" + hexa; break;
-		case 15: hexa = "F" + hexa; break;
+			case 0: hexa = "0" + hexa; break;
+			case 1: hexa = "1" + hexa; break;
+			case 2: hexa = "2" + hexa; break;
+			case 3: hexa = "3" + hexa; break;
+			case 4: hexa = "4" + hexa; break;
+			case 5: hexa = "5" + hexa; break;
+			case 6: hexa = "6" + hexa; break;
+			case 7: hexa = "7" + hexa; break;
+			case 8: hexa = "8" + hexa; break;
+			case 9: hexa = "9" + hexa; break;
+			case 10: hexa = "A" + hexa; break;
+			case 11: hexa = "B" + hexa; break;
+			case 12: hexa = "C" + hexa; break;
+			case 13: hexa = "D" + hexa; break;
+			case 14: hexa = "E" + hexa; break;
+			case 15: hexa = "F" + hexa; break;
 		}
 		number = number / 16;
 	}
@@ -119,38 +119,63 @@ string UtilFunctions::binaryToHexa(string binary) {
 		else if (temp == "1111")hex = hex + "F";
 		else continue;
 	}
-	return "hex";
+	return hex;
 }
 
 string UtilFunctions::generateCode(int num, int size) {
 	string hex = decimalToHexa(num);
 
 	if (size == 4) {
-		if (hex.size() > 2) {
+		if (hex.size() > 8) {
 			throw new runtime_error("ERROR: too big");
 		}
-		string ret;
-		ret = hex.at(0) + hex.at(1) + hex.at(2) + hex.at(3) + hex.at(4) + hex.at(5) + hex.at(6) + hex.at(7);
-		return ret;
+		while (hex.size() < 8) {
+			hex = "0" + hex;
+		}
+		char arr[8];
+		arr[0] = hex.at(6);
+		arr[1] = hex.at(7);
+		arr[2] = hex.at(4);
+		arr[3] = hex.at(5);
+		arr[4] = hex.at(2);
+		arr[5] = hex.at(3);
+		arr[6] = hex.at(0);
+		arr[7] = hex.at(1);
+		string ret(arr);
+		return ret.substr(0, 8);
 	}
 
 	else if (size == 2) {
-		if (hex.size() > 2) {
+		if (hex.size() > 4) {
 			throw new runtime_error("ERROR: too big");
 		}
-		string ret;
-		ret = hex.at(0) + hex.at(1) + hex.at(2) + hex.at(3);
-		return ret;
+		while (hex.size() < 4) {
+			hex = "0" + hex;
+		}
+		char arr[4];
+		arr[0] = hex.at(2);
+		arr[1] = hex.at(3);
+		arr[2] = hex.at(0);
+		arr[3] = hex.at(1);
+		string ret(arr);
+		return ret.substr(0, 4);
 	}
 
 	else if (size == 1) {
 		if (hex.size() > 2) {
 			throw new runtime_error("ERROR: too big");
 		}
-		string ret;
-		ret = hex.at(0) + hex.at(1);
-		return ret;
+		while (hex.size() < 2) {
+			hex = "0" + hex;
+		}
+		char arr[2];
+		arr[0] = hex.at(0);
+		arr[1] = hex.at(1);
+		string ret(arr);
+		return ret.substr(0, 2);
 	}
+
+	else throw runtime_error("ERROR: Unexpected error");
 
 	
 }

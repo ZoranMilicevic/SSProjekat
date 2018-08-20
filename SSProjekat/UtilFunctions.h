@@ -15,11 +15,12 @@ class UtilFunctions{
 public:
 	static vector<string> split(string line);
 	static int getDirectiveSize(string directive);
-
 	static int getSectionNumber(string section);
+
+	static string decimalToBinary(int number);
 	static string binaryToHexa(string binary);
 	static string decimalToHexa(int number);
-	static string decimalToBinary(int number);
+	
 
 	static string generateCode(int, int);
 

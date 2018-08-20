@@ -16,7 +16,7 @@ public:
 	Compiler();
 	~Compiler();
 
-	void compile(ifstream &inFIle, ofstream &outFile);
+	void compile(ifstream &inFIle, ofstream &outFile, int startAddress);
 
 	static map<string, regex> regexMap;
 
@@ -31,6 +31,7 @@ private:
 	string currentSection;
 	int number;
 	int locationCounter;
+	int startOfCurSec;
 	
 	SymbolTable * table;
 	vector<Section> sections;
