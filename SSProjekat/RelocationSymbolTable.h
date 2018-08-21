@@ -13,13 +13,13 @@ private:
 	map<string, vector<RelocationSymbol>> table;
 
 public:
-	RelocationSymbolTable() {}
+	RelocationSymbolTable();
 	~RelocationSymbolTable() {}
 
 	bool put(string key, RelocationSymbol* sym);
 	vector<RelocationSymbol> get(string key);
 
-	void print();
+	void print(ofstream& outFile);
 
 
 

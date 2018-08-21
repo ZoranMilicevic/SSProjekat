@@ -62,31 +62,11 @@ void Compiler::compile(ifstream &inFile, ofstream &outFile, int startAddress) {
 		startOfCurSec = startAddress;
 		firstRun(inFile);
 
-
-		table->print();
-		cout << endl;
-		cout << "Section name" << "\t" << "Start" << "\t\t" << "Length" << endl;
-		for (int i = 0; i < sections.size(); i++) {
-			Section s = sections.at(i);
-			cout << s.getName() << "\t\t" << s.getStart() << "\t\t" <<s.getLength() << endl;
-		}
-
 		inFile.clear();
 		inFile.seekg(0, ios::beg);
 		secondRun(inFile);
 
-		cout << endl << "Generated code" << endl << endl;
-		cout << "#data" << endl;
-		string genc = generatedCode[".data"];
-		cout << genc << endl;
-
-		cout << "#text" << endl;
-		genc = generatedCode[".text"];
-		cout << genc << endl;
-
-		cout << "#rodata" << endl;
-		genc = generatedCode[".rodata"];
-		cout << genc << endl;
+		writeToFile(outFile);
 
 	}
 	catch (exception &e) {
@@ -200,7 +180,6 @@ void Compiler::firstRun(ifstream &inFile) {
 				for (int k = i + 1; k < words.size(); k++) {
 					string adr = findAddressing(words[k]);
 					if (adr != "regDir" && adr !="regDirSpec" && adr!="psw" && adr!="not found") {
-						cout << "++" << endl;
 						locationCounter += 2;
 						break;
 					}
@@ -236,7 +215,7 @@ void Compiler::secondRun(ifstream &inFile) {
 				}
 
 				else if (regex_search(words[i], regexMap["ARITMETICAL"])) { //add, sub, mul, div, and, or, not, shl, shr, mov
-					if (words.size() != 3) {
+					if (words.size() < 3) {
 						throw new runtime_error("ERROR: Wrong number of arguments for aritmetical operation");
 					}
 	
@@ -264,7 +243,7 @@ void Compiler::secondRun(ifstream &inFile) {
 				}
 
 				else if (regex_search(words[i], regexMap["LOGICAL"])) {	//cmp, tst
-					if (words.size() != 3) {
+					if (words.size() < 3) {
 						throw new runtime_error("ERROR: Wrong number of arguments for aritmetical operation");
 					}
 
@@ -292,7 +271,7 @@ void Compiler::secondRun(ifstream &inFile) {
 				}
 
 				else if (regex_search(words[i], regexMap["PUSHCALL"])) {
-					if (words.size() != 2) {
+					if (words.size() < 2) {
 						throw new runtime_error("ERROR: Wrong number of arguments for aritmetical operation");
 					}
 
@@ -303,7 +282,7 @@ void Compiler::secondRun(ifstream &inFile) {
 					string value = "";
 
 					process_first_operand(&operation, &op1, &src, &flag1, &value);
-					string code = UtilFunctions::binaryToHexa(Instruction::instructions[words[i]]->getOpcode() + src + "00000");
+					string code = UtilFunctions::binaryToHexa(Instruction::instructions[words[i]]->getOpcode() + "00000" + src);
 					generatedCode[currentSection] = generatedCode[currentSection] + code + value;
 
 					locationCounter += 2;
@@ -313,18 +292,18 @@ void Compiler::secondRun(ifstream &inFile) {
 				}
 
 				else if (words[i] == "eqpop" || words[i] == "nepop" || words[i] == "gtpop" || words[i] == "alpop") {
-					if (words.size() != 2) {
+					if (words.size() < 2) {
 						throw new runtime_error("ERROR: Wrong number of arguments for aritmetical operation");
 					}
 
 					string operation = "POP";
 					string op1 = words[i + 1];
-					string src = "";
+					string dst = "";
 					bool flag1 = false;
 					string value = "";
 
-					process_first_operand(&operation, &op1, &src, &flag1, &value);
-					string code = UtilFunctions::binaryToHexa(Instruction::instructions[words[i]]->getOpcode() + src + "00000");
+					process_first_operand(&operation, &op1, &dst, &flag1, &value);
+					string code = UtilFunctions::binaryToHexa(Instruction::instructions[words[i]]->getOpcode() + dst + "00000");
 					generatedCode[currentSection] = generatedCode[currentSection] + code + value;
 
 					locationCounter += 2;
@@ -342,11 +321,56 @@ void Compiler::secondRun(ifstream &inFile) {
 				}	
 
 				else if (words[i] == "eqret" || words[i] == "neret" || words[i] == "gtret" || words[i] == "alret") {
-					
+					//same as pop pc
+					string code = UtilFunctions::binaryToHexa(Instruction::instructions[words[i]]->getOpcode() + "01111" + "00000"); //regdir i pc
+					generatedCode[currentSection] = generatedCode[currentSection] + code;
+
+					locationCounter += 2;
+					break;
 				}
 
 				else if (words[i] == "eqjmp" || words[i] == "nejmp" || words[i] == "gtjmp" || words[i] == "aljmp") {
+					if (words.size() < 2) {
+						throw new runtime_error("ERROR: Wrong number of arguments for aritmetical operation");
+					}
+
+					string operation = "JMP";
+					string op1 = words[i + 1];
+					string dst = "";
+					bool flag1 = false;
+					string value = "";
+
+					string addressing = findAddressing(op1);
+
+					process_first_operand(&operation, &op1, &dst, &flag1, &value);
 					
+					if (addressing == "pcrel") {
+						string code = UtilFunctions::binaryToHexa(Instruction::instructions[words[i] + "add"]->getOpcode() + "01111" + "10000"); //ADD r7, offset(x)
+						generatedCode[currentSection] = generatedCode[currentSection] + code + value;
+						cout << code << endl;
+					}
+					else {
+						if (addressing == "regIndPom") {
+							string opp = words[i + 1];
+							int regNum = opp.at(1);
+							if (regNum == 7) {
+								string code = UtilFunctions::binaryToHexa(Instruction::instructions[words[i] + "add"]->getOpcode() + "01111" + "10000"); //ADD r7, offset(x)
+								generatedCode[currentSection] = generatedCode[currentSection] + code + value;
+							}
+							else {
+								string code = UtilFunctions::binaryToHexa(Instruction::instructions[words[i] + "mov"]->getOpcode() + "01111" + dst); //MOV r7, ...
+								generatedCode[currentSection] = generatedCode[currentSection] + code + value;
+							}
+						}
+						else {
+							string code = UtilFunctions::binaryToHexa(Instruction::instructions[words[i] + "mov"]->getOpcode() + "01111" + dst); //MOV r7, ...
+							generatedCode[currentSection] = generatedCode[currentSection] + code + value;
+						}
+					}
+					
+					locationCounter += 2;
+					if (flag1 == true) locationCounter += 2;
+					break;
 				}
 			
 			}
@@ -370,20 +394,36 @@ void Compiler::secondRun(ifstream &inFile) {
 					catch (exception e) {
 						throw new runtime_error("ERROR: Invalid argument for directives .skip or .align!");
 					}
-					if (name == ".skip") locationCounter += k;
+					if (name == ".skip") {
+						locationCounter += k;
+						string code = "";
+						for (int i = 0; i < 2 * k; i++) {
+							code += "0";
+						}
+						generatedCode[currentSection] += code;
+					}
 					else if (name == ".align") {
 						if (k == 0) continue;
+						int oldLc = locationCounter;
 						if ((k & (k - 1)) == 0) {
 							if (locationCounter / k * k != locationCounter) locationCounter = (locationCounter / k + 1) * k;
 						}
-						else throw new runtime_error("ERROR: Invalid argument for .skip directive, argument must be a power of 2");
+						if (locationCounter - oldLc > 0) {
+							int j = locationCounter - oldLc;
+							string code = "";
+							for (int i = 0; i < 2 * j; i++) {
+								code = code + "0";
+							}
+							generatedCode[currentSection] += code;
+						}
+						else throw new runtime_error("ERROR: Invalid argument for .align directive, argument must be a power of 2");
 					}
 				}
 
 				else if (name == ".char" || name == ".word" || name == ".long") {
 					int size = UtilFunctions::getDirectiveSize(name);
 					for (int k = i + 1; k < words.size(); k++) {
-						//IF IT IS A NUMBER, ONLY DECIMAL FOR NOW
+						//IF IT IS A NUMBER, IN DECIMAL
 						if (regex_search(words[k], regexMap["NUMBER"])) {	
 							int val = 0;
 							try {
@@ -397,6 +437,21 @@ void Compiler::secondRun(ifstream &inFile) {
 							locationCounter += size;
 
 							cout << "Directive with number in dec" << endl;
+						}
+						//NUMBER IN HEX
+						else if (regex_search(words[k], regexMap["OPERAND_HEX"])) {
+							string pom = words[k];
+							pom = pom.substr(2, pom.size());
+							while (pom.size() < 4) {
+								pom = "0" + pom;
+							}
+							char arr[] = { pom[2], pom[3], pom[0], pom[1] };
+							string code(arr);
+							code = code.substr(0, 4);
+							generatedCode[currentSection] += code;
+							locationCounter += size;
+
+							cout << "Directive with number in hex" << endl;
 						}
 						//IF IT IS A SYMBOL
 						else {										
@@ -459,7 +514,14 @@ void Compiler::process_first_operand(string* operation, string* op1, string* src
 		}
 		else {
 			string opp = *op1;
-			*value = opp[2] + opp[3] + opp[0] + opp[1]; //little endian processor
+			opp = opp.substr(3, opp.size());
+			while (opp.size() < 4) {
+				opp = "0" + opp;
+			}
+			char arr[] = { opp[2], opp[3], opp[0], opp[1] };
+			string code(arr);
+			code = code.substr(0, 4);
+			*value = code; //little endian processor
 
 			cout << "First operand is immidiateHex value is " << opp << endl;
 		}
@@ -503,7 +565,14 @@ void Compiler::process_first_operand(string* operation, string* op1, string* src
 		}
 		else {
 			string opp = *op1;
-			*value = opp[2] + opp[3] + opp[0] + opp[1];
+			opp = opp.substr(3, opp.size());
+			while (opp.size() < 4) {
+				opp = "0" + opp;
+			}
+			char arr[] = { opp[2], opp[3], opp[0], opp[1] };
+			string code(arr);
+			code = code.substr(0, 4);
+			*value = code;
 
 			cout << "First operand is immAddrHex with value " << opp << endl;
 		}
@@ -522,7 +591,7 @@ void Compiler::process_first_operand(string* operation, string* op1, string* src
 				*value = UtilFunctions::generateCode(sym->getOffset(), 2);
 				//RELOCATION SYMBOL
 				string address = UtilFunctions::decimalToHexa(locationCounter + 2);
-				RelocationSymbol* rels = new RelocationSymbol(address, false, UtilFunctions::getSectionNumber(currentSection));
+				RelocationSymbol* rels = new RelocationSymbol(address, false, UtilFunctions::getSectionNumber(sym->getSection()));
 				relocationTable->put(currentSection, rels);
 
 				cout << "First operand is memDir on local symbol " << sym->getLabel() << endl;
@@ -556,7 +625,7 @@ void Compiler::process_first_operand(string* operation, string* op1, string* src
 				*value = UtilFunctions::generateCode(sym->getOffset(), 2);
 				//RELOCATION SYMBOL
 				string address = UtilFunctions::decimalToHexa(locationCounter + 2);
-				RelocationSymbol* rels = new RelocationSymbol(address, false, UtilFunctions::getSectionNumber(currentSection));
+				RelocationSymbol* rels = new RelocationSymbol(address, false, UtilFunctions::getSectionNumber(sym->getSection()));
 				relocationTable->put(currentSection, rels);
 
 				cout << "First operand is symVal on local symbol " << sym->getLabel() << endl;
@@ -604,7 +673,14 @@ void Compiler::process_first_operand(string* operation, string* op1, string* src
 				cout << "First operand is regIndPom with immediate pomc in dec " << pom << " and register " << regNum << endl;
 			}
 			else {
-				*value = pom[2] + pom[3] + pom[0] + pom[1];
+				pom = pom.substr(3, pom.size());
+				while (pom.size() < 4) {
+					pom = "0" + pom;
+				}
+				char arr[] = { pom[2], pom[3], pom[0], pom[1] };
+				string code(arr);
+				code = code.substr(0, 4);
+				*value = code;
 
 				cout << "First operand is regIndPom with immediate pomc in hex " << pom << " and register " << regNum << endl;
 			}
@@ -621,7 +697,7 @@ void Compiler::process_first_operand(string* operation, string* op1, string* src
 					else *value = UtilFunctions::generateCode(sym->getOffset() - 2, 2); //pcrel
 					//RELOCATION SYMBOL
 					string address = UtilFunctions::decimalToHexa(locationCounter + 2);
-					RelocationSymbol* rels = new RelocationSymbol(address, false, UtilFunctions::getSectionNumber(currentSection));
+					RelocationSymbol* rels = new RelocationSymbol(address, false, UtilFunctions::getSectionNumber(sym->getSection()));
 					relocationTable->put(currentSection, rels);
 					 
 					cout << "First operand is regIndPom with local  symbol " << sym->getLabel() << " and register " << regNum << endl;
@@ -656,7 +732,7 @@ void Compiler::process_first_operand(string* operation, string* op1, string* src
 			if (sym->getLocGlo() == "local") {
 				*value = UtilFunctions::generateCode(sym->getOffset() - 2, 2); //pcrel
 				string address = UtilFunctions::decimalToHexa(locationCounter + 2);
-				RelocationSymbol* rels = new RelocationSymbol(address, true, UtilFunctions::getSectionNumber(currentSection));
+				RelocationSymbol* rels = new RelocationSymbol(address, true, UtilFunctions::getSectionNumber(sym->getSection()));
 				relocationTable->put(currentSection, rels);
 
 				cout << "First operand is pcrel with local symbol " << sym->getLabel() << " and register " << "pc" << endl;
@@ -693,7 +769,14 @@ void Compiler::process_second_operand(string* operation, string* op2, string* ds
 		}
 		else {
 			string opp = *op2;
-			*value = opp[2] + opp[3] + opp[0] + opp[1];
+			opp = opp.substr(3, opp.size());
+			while (opp.size() < 4) {
+				opp = "0" + opp;
+			}
+			char arr[] = { opp[2], opp[3], opp[0], opp[1] };
+			string code(arr);
+			code = code.substr(0, 4);
+			*value = code;
 
 			cout << "Second operand is immidiateHex value is " << opp << endl;
 
@@ -741,7 +824,14 @@ void Compiler::process_second_operand(string* operation, string* op2, string* ds
 		}
 		else {
 			string opp = *op2;
-			*value = opp[2] + opp[3] + opp[0] + opp[1];
+			opp = opp.substr(3, opp.size());
+			while (opp.size() < 4) {
+				opp = "0" + opp;
+			}
+			char arr[] = { opp[2], opp[3], opp[0], opp[1] };
+			string code(arr);
+			code = code.substr(0, 4);
+			*value = code;
 
 			cout << "Second operand is immAddrHex value is " << opp << endl;
 
@@ -761,7 +851,7 @@ void Compiler::process_second_operand(string* operation, string* op2, string* ds
 				*value = UtilFunctions::generateCode(sym->getOffset(), 2);
 				//RELOCATION SYMBOL
 				string address = UtilFunctions::decimalToHexa(locationCounter + 2);
-				RelocationSymbol* rels = new RelocationSymbol(address, false, UtilFunctions::getSectionNumber(currentSection)); //section entry number
+				RelocationSymbol* rels = new RelocationSymbol(address, false, UtilFunctions::getSectionNumber(sym->getSection())); //section entry number
 				relocationTable->put(currentSection, rels);
 
 				cout << "Second operand is memDir with local symbol " << sym->getLabel() << endl;
@@ -794,7 +884,7 @@ void Compiler::process_second_operand(string* operation, string* op2, string* ds
 				*value = UtilFunctions::generateCode(sym->getOffset(), 2);
 				//RELOCATION SYMBOL
 				string address = UtilFunctions::decimalToHexa(locationCounter + 2);
-				RelocationSymbol* rels = new RelocationSymbol(address, false, UtilFunctions::getSectionNumber(currentSection));
+				RelocationSymbol* rels = new RelocationSymbol(address, false, UtilFunctions::getSectionNumber(sym->getSection()));
 				relocationTable->put(currentSection, rels);
 
 				cout << "Second operand is symVal with local symbol " << sym->getLabel() << endl;
@@ -841,7 +931,14 @@ void Compiler::process_second_operand(string* operation, string* op2, string* ds
 				cout << "Second operand is regIndPom with immediate pomc in dec " << v << " and register " << regNum << endl;
 			}
 			else {
-				*value = pom[2] + pom[3] + pom[0] + pom[1];
+				pom = pom.substr(3, pom.size());
+				while (pom.size() < 4) {
+					pom = "0" + pom;
+				}
+				char arr[] = { pom[2], pom[3], pom[0], pom[1] };
+				string code(arr);
+				code = code.substr(0, 4);
+				*value = code;
 
 				cout << "Second operand is regIndPom with immediate pomc in hex " << pom << " and register " << regNum << endl;
 			}
@@ -858,7 +955,7 @@ void Compiler::process_second_operand(string* operation, string* op2, string* ds
 					else *value = UtilFunctions::generateCode(sym->getOffset() - 2, 2); //pcrel
 					//RELOCATION SYMBOL
 					string address = UtilFunctions::decimalToHexa(locationCounter + 2);
-					RelocationSymbol* rels = new RelocationSymbol(address, false, UtilFunctions::getSectionNumber(currentSection));
+					RelocationSymbol* rels = new RelocationSymbol(address, false, UtilFunctions::getSectionNumber(sym->getSection()));
 					relocationTable->put(currentSection, rels);
 
 					cout << "Second operand is regIndPom with local symbol " << sym->getLabel() << " and register " << regNum << endl;
@@ -893,7 +990,7 @@ void Compiler::process_second_operand(string* operation, string* op2, string* ds
 			if (sym->getLocGlo() == "local") {
 				*value = UtilFunctions::generateCode(sym->getOffset() - 2, 2); //pcrel
 				string address = UtilFunctions::decimalToHexa(locationCounter + 2);
-				RelocationSymbol* rels = new RelocationSymbol(address, true, UtilFunctions::getSectionNumber(currentSection));
+				RelocationSymbol* rels = new RelocationSymbol(address, true, UtilFunctions::getSectionNumber(sym->getSection()));
 				relocationTable->put(currentSection, rels);
 
 				cout << "Second operand is pcrel with local symbol " << sym->getLabel() << " and register " << "pc" << endl;
@@ -959,5 +1056,35 @@ string Compiler::findAddressing(string op) {
 	}
 
 	else return "not found";
+
+}
+
+void Compiler::writeToFile(ofstream &outFile) {
+	table->print(outFile);
+	outFile << endl;
+
+	outFile << "Section name" << "\t" << "Start" << "\t\t" << "Length" << endl;
+	for (int i = 0; i < sections.size(); i++) {
+		Section s = sections.at(i);
+		outFile << s.getName() << "\t\t" << s.getStart() << "\t\t" << s.getLength() << endl;
+	}
+
+	relocationTable->print(outFile);
+	outFile << endl;
+
+	outFile << "#.data" << endl;
+	string genc = generatedCode[".data"];
+	outFile << genc << endl;
+
+	outFile << "#.text" << endl;
+	genc = generatedCode[".text"];
+	outFile << genc << endl;
+
+	outFile << "#.rodata" << endl;
+	genc = generatedCode[".rodata"];
+	outFile << genc << endl;
+
+
+
 
 }

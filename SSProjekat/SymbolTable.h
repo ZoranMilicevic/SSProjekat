@@ -20,7 +20,7 @@ public:
 	bool put(string key, Symbol* sym);
 	Symbol* get(string key);
 
-	void print();
+	void print(ofstream& outFile);
 };
 
 

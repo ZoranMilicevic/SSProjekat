@@ -23,6 +23,7 @@ public:
 private:
 	void firstRun(ifstream &inFile);
 	void secondRun(ifstream &inFile);
+	void writeToFile(ofstream &outFile);
 
 	void process_first_operand(string* operation, string* op, string* src, bool* flag, string* value);
 	void process_second_operand(string* operation, string* op, string* src, bool* flag, string* value);

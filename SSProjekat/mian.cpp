@@ -15,9 +15,10 @@ int main(int argc, char** argv) {
 
 	ifstream inFile(argv[1]);
 	ofstream outFile(argv[2]);
-	int startAddress = 3;
-	if (argc > 3) {
-		
+	int startAddress = 0;
+	if (argc >= 3) {
+		string s = argv[3];
+		startAddress = stoi(s);
 	}
 
 	if (!inFile.is_open()) {
@@ -32,8 +33,11 @@ int main(int argc, char** argv) {
 
 	Compiler* c = new Compiler();
 	c->compile(inFile, outFile, startAddress);
+
 	delete c;
-	
+	inFile.close();
+	outFile.close();
+
 	cout << "Success" << endl;
 
 	int in;
