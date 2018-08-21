@@ -116,7 +116,12 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Compiler.cpp" />
+    <ClCompile Include="Cpu.cpp" />
+    <ClCompile Include="Emulator.cpp" />
     <ClCompile Include="Instructions.cpp" />
+    <ClCompile Include="Ivt.cpp" />
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="Memory.cpp" />
     <ClCompile Include="mian.cpp" />
     <ClCompile Include="RelocationSymbolTable.cpp" />
     <ClCompile Include="SymbolTable.cpp" />
@@ -124,7 +129,11 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Compiler.h" />
+    <ClInclude Include="Cpu.h" />
+    <ClInclude Include="Emulator.h" />
     <ClInclude Include="Instruction.h" />
+    <ClInclude Include="Ivt.h" />
+    <ClInclude Include="Memory.h" />
     <ClInclude Include="RelocationSymbol.h" />
     <ClInclude Include="RelocationSymbolTable.h" />
     <ClInclude Include="Section.h" />
