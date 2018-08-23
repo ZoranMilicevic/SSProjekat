@@ -24,9 +24,6 @@
     <ClCompile Include="Compiler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="mian.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="SymbolTable.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -39,9 +36,6 @@
     <ClCompile Include="RelocationSymbolTable.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="main.cpp">
-      <Filter>Source Files\emulator</Filter>
-    </ClCompile>
     <ClCompile Include="Emulator.cpp">
       <Filter>Source Files\emulator</Filter>
     </ClCompile>
@@ -53,6 +47,12 @@
     </ClCompile>
     <ClCompile Include="Memory.cpp">
       <Filter>Source Files\emulator</Filter>
+    </ClCompile>
+    <ClCompile Include="main2.cpp">
+      <Filter>Source Files\emulator</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

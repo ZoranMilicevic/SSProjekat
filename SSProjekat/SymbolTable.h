@@ -19,6 +19,7 @@ public:
 
 	bool put(string key, Symbol* sym);
 	Symbol* get(string key);
+	Symbol* getByNum(int num);
 
 	void print(ofstream& outFile);
 };

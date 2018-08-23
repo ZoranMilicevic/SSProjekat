@@ -6,6 +6,12 @@ using namespace std;
 
 class Cpu {
 public:
+	bool decodeAndExec();
+	void irregularInterrupt();
+	void handleInterrupts();
+
+
+
 	int regs[9];
 	static const int SP = 6;
 	static const int PC = 7;

@@ -177,6 +177,7 @@ void Compiler::firstRun(ifstream &inFile) {
 
 			else if (regex_search(words[i], regexMap["INSTRUCTION"])) {
 				locationCounter += 2;
+				
 				for (int k = i + 1; k < words.size(); k++) {
 					string adr = findAddressing(words[k]);
 					if (adr != "regDir" && adr !="regDirSpec" && adr!="psw" && adr!="not found") {
@@ -1060,14 +1061,16 @@ string Compiler::findAddressing(string op) {
 }
 
 void Compiler::writeToFile(ofstream &outFile) {
-	table->print(outFile);
-	outFile << endl;
-
+	outFile << "#Section_table" << endl;
 	outFile << "Section name" << "\t" << "Start" << "\t\t" << "Length" << endl;
 	for (int i = 0; i < sections.size(); i++) {
 		Section s = sections.at(i);
 		outFile << s.getName() << "\t\t" << s.getStart() << "\t\t" << s.getLength() << endl;
 	}
+	outFile << endl;
+
+	outFile << "#Symbol_table" << endl;
+	table->print(outFile);
 
 	relocationTable->print(outFile);
 	outFile << endl;

@@ -1,0 +1,18 @@
+#Section_table
+Section name	Start		Length
+.text		100		62
+.data		162		23
+.rodata		185		11
+.bss		196		7
+
+Label		Section		offset		LocGlo		number
+--------------------------------------------------------------------------
+a		.data		173		local		5
+b		.data		175		global		6
+c		.data		177		local		7
+d		.data		181		global		8
+l		.bss		198		local		9
+m		.rodata		197		local		10
+p		.rodata		196		local		13
+q		.data		185		local		11
+w		.data		193		local		12

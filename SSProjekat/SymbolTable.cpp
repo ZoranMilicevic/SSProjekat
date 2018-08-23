@@ -26,3 +26,11 @@ void SymbolTable::print(ofstream& outFile) {
 	}
 	
 }
+
+Symbol* SymbolTable::getByNum(int num) {
+	for (map<string, Symbol*>::iterator it = table.begin(); it != table.end(); it++) {
+		Symbol * s = it->second;
+		if (s->getNumber() == num)return s;
+	}
+	return 0;
+}

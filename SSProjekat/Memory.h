@@ -2,6 +2,7 @@
 #define MEMORY_H
 
 #include <map>
+#include <string>
 
 using namespace std;
 
@@ -10,23 +11,23 @@ typedef unsigned char byte;
 
 class Memory {
 private:
-	map<int, byte> ram;
-	map<int, byte> io;
+	map<int, string> ram;
+	map<int, string> io;
 public:
 	Memory() {};
 	~Memory() {};
 
-	void writeRamByte(int address, byte data);
-	void writeIoByte(int address, byte data);
-	byte readRamByte(int address);
-	byte readIoByte(int address);
+	void writeRamByte(int address, string data);
+	void writeIoByte(int address, string data);
+	string readRamByte(int address);
+	string readIoByte(int address);
 
-	void writeRamInt(int address, int data, bool little = false);
-	void writeIoInt(int address, int data, bool little = false);
-	int readRamInt(int address, bool little = false);
-	int readIoInt(int address, bool little = false);
+	void writeRamInt(int address, int data);
+	void writeIoInt(int address, int data);
+	int readRamInt(int address);
+	int readIoInt(int address);
 
-
+	void print();
 };
 
 
