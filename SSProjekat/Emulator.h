@@ -23,7 +23,6 @@ private:
 	void createSymbolTable(string name);
 	void resolveRelocation(string name);
 	void writeToMemory(string*, vector<Section*>);
-	int hexToDecimal(string num);
 	
 
 public:

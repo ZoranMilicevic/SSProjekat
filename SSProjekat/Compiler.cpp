@@ -346,9 +346,8 @@ void Compiler::secondRun(ifstream &inFile) {
 					process_first_operand(&operation, &op1, &dst, &flag1, &value);
 					
 					if (addressing == "pcrel") {
-						string code = UtilFunctions::binaryToHexa(Instruction::instructions[words[i] + "add"]->getOpcode() + "01111" + "10000"); //ADD r7, offset(x)
+						string code = UtilFunctions::binaryToHexa(Instruction::instructions[words[i] + "add"]->getOpcode() + "01111" + "00000"); //ADD r7, offset(x)
 						generatedCode[currentSection] = generatedCode[currentSection] + code + value;
-						cout << code << endl;
 					}
 					else {
 						if (addressing == "regIndPom") {
@@ -741,7 +740,7 @@ void Compiler::process_first_operand(string* operation, string* op1, string* src
 			else { //global
 				*value = UtilFunctions::generateCode(-2, 2); //pcrel
 				string address = UtilFunctions::decimalToHexa(locationCounter + 2);
-				RelocationSymbol* rels = new RelocationSymbol(address, false, sym->getNumber());
+				RelocationSymbol* rels = new RelocationSymbol(address, true, sym->getNumber());
 				relocationTable->put(currentSection, rels);
 
 				cout << "First operand is pcrel with global symbol " << sym->getLabel() << " and register " << "pc" << endl;

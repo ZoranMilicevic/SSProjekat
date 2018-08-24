@@ -1,14 +1,28 @@
 #ifndef CPU_H
 #define CPU_H
-
+#include "Memory.h"
 using namespace std;
 
 
 class Cpu {
+private:
+	Memory* mem;
+	int *stack;
 public:
+	Cpu(Memory* mem) {
+		this->mem = mem;
+		stack = new int[1000];
+		regs[SP] = 1001;
+	};
+	~Cpu() {};
+
 	bool decodeAndExec();
-	void irregularInterrupt();
-	void handleInterrupts();
+
+	static int interruptRegister;
+	static const int timer_interrupt = 1;
+	static const int irregular_interrupt = 2;
+	static const int keyboard_interrupt = 3;
+
 
 
 
@@ -35,7 +49,7 @@ public:
 	bool carryFlag() {
 		return regs[PSW] & MASK_CARRY;
 	}
-	bool negativeFlaf() {
+	bool negativeFlag() {
 		return regs[PSW] & MASK_NEGATIVE;
 	}
 	bool timerFlag() {
@@ -50,7 +64,7 @@ public:
 		if (b) regs[PSW] |= MASK_ZERO;
 		else regs[PSW] &= ~MASK_ZERO;
 	}
-	void setOverflowFlaf(bool b) {
+	void setOverflowFlag(bool b) {
 		if (b) regs[PSW] |= MASK_OVERFLOW;
 		else regs[PSW] &= MASK_OVERFLOW;
 	}

@@ -147,6 +147,8 @@ string UtilFunctions::generateCode(int num, int size) {
 
 	else if (size == 2) {
 		if (hex.size() > 4) {
+			int k;
+			int l;
 			throw new runtime_error("ERROR: too big");
 		}
 		while (hex.size() < 4) {
@@ -175,8 +177,79 @@ string UtilFunctions::generateCode(int num, int size) {
 		return ret.substr(0, 2);
 	}
 
-	else throw runtime_error("ERROR: Unexpected error");
+	else throw runtime_error("ERROR: Unexpected error");	
+}
 
-	
+int UtilFunctions::hexToDecimal(string num) {
+	int ret = 0;
+	int i = num.size() - 1;
+	bool flag = false;
+	if (num.size()==4 &&(num.at(0) == '8' || num.at(0) == '9' || num.at(0) == 'A' || num.at(0) == 'B' || num.at(0) == 'C' || num.at(0) == 'D' || num.at(0) == 'E' || num.at(0) == 'F')) flag = true;
+	for (int k = 0; i >= 0; i--, k++) {
+		char c = num.at(i);
+		int mul = pow(16, k);
+		switch (c) {
+		case '0': ret += 0; break;
+		case '1': ret += mul; break;
+		case '2': ret += 2 * mul; break;
+		case '3': ret += 3 * mul; break;
+		case '4': ret += 4 * mul; break;
+		case '5': ret += 5 * mul; break;
+		case '6': ret += 6 * mul; break;
+		case '7': ret += 7 * mul; break;
+		case '8': ret += 8 * mul; break;
+		case '9': ret += 9 * mul; break;
+		case 'A': ret += 10 * mul; break;
+		case 'B': ret += 11 * mul; break;
+		case 'C': ret += 12 * mul; break;
+		case 'D': ret += 13 * mul; break;
+		case 'E': ret += 14 * mul; break;
+		case 'F': ret += 15 * mul; break;
+		}
+	}
+	if (flag) ret -= 65536;
+	return ret;
+}
+
+string UtilFunctions::hexToBinary(string hex) {
+	string ret = "";
+
+	for (int i = 0; i < hex.size(); i++) {
+		char c = hex[i];
+		switch (c) {
+			case '0': ret += "0000"; break;
+			case '1': ret += "0001"; break;
+			case '2': ret += "0010"; break;
+			case '3': ret += "0011"; break;
+			case '4': ret += "0100"; break;
+			case '5': ret += "0101"; break;
+			case '6': ret += "0110"; break;
+			case '7': ret += "0111"; break;
+			case '8': ret += "1000"; break;
+			case '9': ret += "1001"; break;
+			case 'A': ret += "1010"; break;
+			case 'B': ret += "1011"; break;
+			case 'C': ret += "1100"; break;
+			case 'D': ret += "1101"; break;
+			case 'E': ret += "1110"; break;
+			case 'F': ret += "1111"; break;
+		}
+	}
+	return ret;
+}
+
+int UtilFunctions::binaryToDec(string bin) {
+	int ret = 0;
+	int i = bin.size() - 1;
+	for (int k = 0; i >= 0; i--, k++) {
+		char c = bin.at(i);
+		int mul = pow(2, k);
+		switch (c) {
+			case '0': ret += 0; break;
+			case '1': ret += mul; break;
+		}
+	}
+	return ret;
+
 }
 

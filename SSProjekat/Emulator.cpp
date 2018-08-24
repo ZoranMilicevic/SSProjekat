@@ -25,50 +25,25 @@ vector<string> Emulator::split(string line) {
 	return ret;
 }
 
-int Emulator::hexToDecimal(string num) {
-	int ret = 0;
-	int i = num.size()-1;
-	for (int k=0; i >= 0; i--, k++) {
-		char c = num.at(i);
-		int mul = pow(2, k);
-		switch(c) {
-			case '0': ret += 0; break;
-			case '1': ret += mul; break;
-			case '2': ret += 2*mul; break;
-			case '3': ret += 3*mul; break;
-			case '4': ret += 4*mul; break;
-			case '5': ret += 5*mul; break;
-			case '6': ret += 6*mul; break;
-			case '7': ret += 7*mul; break;
-			case '8': ret += 8*mul; break;
-			case '9': ret += 9*mul; break;
-			case 'A': ret += 10*mul; break;
-			case 'B': ret += 11*mul; break;
-			case 'C': ret += 12*mul; break;
-			case 'D': ret += 13*mul; break;
-			case 'E': ret += 14*mul; break;
-			case 'F': ret += 15*mul; break;
-		}
-	}
-	return ret;
-}
-
 void Emulator::load(int argc, char** argv) {
-	sections.push_back(new Section());
-	sections.push_back(new Section());
-	sections.push_back(new Section());
-	sections.push_back(new Section());
 
 	for (int i = 1; i < argc - 1; i++) {
+		sections.push_back(new Section());
+		sections.push_back(new Section());
+		sections.push_back(new Section());
+		sections.push_back(new Section());
 		createSymbolTable(argv[i]);
+		sections.clear();
 	}
 
 	for (int i = 1; i < argc - 1; i++) {
+		sections.push_back(new Section());
+		sections.push_back(new Section());
+		sections.push_back(new Section());
+		sections.push_back(new Section());
 		resolveRelocation(argv[i]);
+		sections.clear();
 	}
-	
-	mem.print();
-
 }
 
 void Emulator::createSymbolTable(string name) {
@@ -126,8 +101,6 @@ void Emulator::createSymbolTable(string name) {
 					offset = offset + start;
 					sym = new Symbol(symName, section, offset, locGlo, num);
 					table.put(symName, sym);
-
-					if (symName == "START")START = offset;
 				}
 			}
 		}
@@ -191,6 +164,9 @@ void Emulator::resolveRelocation(string name) {
 				int n = UtilFunctions::getSectionNumber(section);
 				if (symName == ".text" || symName == ".data" || symName == ".rodata" || symName == ".bss") offset = 0;
 				offset = offset + sections[n - 1]->getStart();
+				if (symName == "START") {
+					START = offset;
+				}
 			}
 			
 			Symbol *sym = new Symbol(symName, section, offset, locGlo, num);
@@ -215,7 +191,7 @@ void Emulator::resolveRelocation(string name) {
 				vector<string> words = split(line);
 
 				string address = words[0];
-				int adr = hexToDecimal(address);
+				int adr = UtilFunctions::hexToDecimal(address);
 				string type = words[1];
 				int num = stoi(words[2]);
 
@@ -235,10 +211,10 @@ void Emulator::resolveRelocation(string name) {
 				int num = r.getNumber();
 
 				if (type) {	//PCREL
-					char pod[4] = { code[addr + 2], code[addr + 3], code[addr], code[addr + 1] };
+					char pod[4] = { code[2*addr + 2], code[2*addr + 3], code[2*addr], code[2*addr + 1] };
 					string dat(pod);
 					dat = dat.substr(0, 4);
-					int d = hexToDecimal(dat);
+					int d = UtilFunctions::hexToDecimal(dat); //GET THE DATA IN INT
 					Symbol* sym = localTable->getByNum(num);
 					if (sym->getSection() != "UND") {	//LOCAL
 						d += sym->getOffset();
@@ -251,16 +227,16 @@ void Emulator::resolveRelocation(string name) {
 					int n = UtilFunctions::getSectionNumber(sec);
 					d = d - addr - sections[n - 1]->getStart();
 					string g = UtilFunctions::generateCode(d, 2);
-					code[addr] = g[0];
-					code[addr + 1] = g[1];
-					code[addr + 2] = g[2];
-					code[addr + 3] = g[3];
+					code[2*addr] = g[0];
+					code[2*addr + 1] = g[1];
+					code[2*addr + 2] = g[2];
+					code[2*addr + 3] = g[3];
 				}
 				else { //ABS
-					char pod[4] = { code[addr + 2], code[addr + 3], code[addr], code[addr + 1] };
+					char pod[4] = { code[2*addr + 2], code[2*addr + 3], code[2*addr], code[2*addr + 1] };
 					string dat(pod);
 					dat = dat.substr(0, 4);
-					int d = hexToDecimal(dat);
+					int d = UtilFunctions::hexToDecimal(dat);
 					Symbol* sym = localTable->getByNum(num);
 					if (sym->getSection() != "UND") {	//LOCAL
 						d += sym->getOffset();
@@ -271,10 +247,10 @@ void Emulator::resolveRelocation(string name) {
 						d += sym->getOffset();
 					}
 					string g = UtilFunctions::generateCode(d, 2);
-					code[addr] = g[0];
-					code[addr + 1] = g[1];
-					code[addr + 2] = g[2];
-					code[addr + 3] = g[3];
+					code[2*addr] = g[0];
+					code[2*addr + 1] = g[1];
+					code[2*addr + 2] = g[2];
+					code[2*addr + 3] = g[3];
 				}
 			}
 			genCode[UtilFunctions::getSectionNumber(sec) - 1] = code;
@@ -289,6 +265,7 @@ void Emulator::writeToMemory(string* genCode, vector<Section*> sections) {
 		int start = sec->getStart();
 		int length = sec->getLength();
 		string name = sec->getName();
+		if (name == "")continue;
 		int n = UtilFunctions::getSectionNumber(name);
 		string code = genCode[n - 1];
 		int k = 0;
@@ -306,34 +283,25 @@ void Emulator::writeToMemory(string* genCode, vector<Section*> sections) {
 
 void Emulator::run() {
 	bool end = false;
-	Cpu* c = new Cpu();
+	Cpu* c = new Cpu(&mem);
 	Ivt* ivt = new Ivt(&mem);
-
-	/*
-	pthread_mutex_init(&CPU::mutexInterrupt, NULL);
-
-	pthread_t keyBoardThread;
-	pthread_t timerThread;
-	pthread_attr_t defAtr;
-
-	pthread_attr_init(&defAtr);
-	pthread_create(&keyBoardThread, &defAtr, CPU::KeyboardHandler, NULL);
-	pthread_create(&timerThread, &defAtr, CPU::Timer, NULL);
-	*/
 
 	for (int i = 0; i < 6; i++)c->regs[i] = 0;
 	c->regs[Cpu::PSW] = 0;
-	c->regs[Cpu::SP] = 0xffffff; //!!!!!!!!!!
-	
-	ivt->init();
-	c->setTimerFlag(true);
+	c->regs[Cpu::SP] = 1001; 
+	c->regs[Cpu::PC] = START;
 
-	c->setInterruptFlag(true);
-	c->regs[Cpu::PC] = ivt->getInterruptRoutine(0);
+	if (START == -1)throw new runtime_error("ERROR: START symbol not defined");
 
 	while (!end) {
 		bool b = c->decodeAndExec();
-		if (b == false)c->irregularInterrupt();
-		c->handleInterrupts();
+		if (c->regs[Cpu::PC] > 209)break;
 	}
+
+
+	//WRITE TO FILE
+	ofstream out("C:\\Testovi\\emulOutput.txt");
+	mem.print(out);
+	out << endl;
+	for (int i = 0; i < 9; i++)out << "r" << i << " = " << c->regs[i] << endl;
 }

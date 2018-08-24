@@ -21,9 +21,11 @@ public:
 	static string binaryToHexa(string binary);
 	static string decimalToHexa(int number);
 	
-
 	static string generateCode(int, int);
 
+	static int hexToDecimal(string num);
+	static string hexToBinary(string hex);
+	static int binaryToDec(string bin);
 };
 
 #endif

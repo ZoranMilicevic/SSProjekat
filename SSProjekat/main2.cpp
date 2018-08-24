@@ -6,6 +6,7 @@
 
 using namespace std;
 
+
 int main(int argc, char** argv) {
 	if (argc < 1){
 		cout << "Please call this program as ./emulator inputfile [inputfiles]+" << endl;
@@ -17,9 +18,8 @@ int main(int argc, char** argv) {
 	e->load(argc, argv);
 	e->run();
 
-
-
 	int n;
 	cin >> n;
 }
+
 

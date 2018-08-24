@@ -18,21 +18,20 @@ string Memory::readIoByte(int address) {
 	return io[address];
 }
 
-void Memory::print() {
-	cout << endl << endl << endl;
+void Memory::print(ofstream& out) {
 	for (map<int, string>::iterator it = ram.begin(); it != ram.end(); it++) {
 		int add = it->first;
 		string dat = it->second;
-		cout << add << "-" << dat << endl;
+		out << add << "-" << dat << endl;
 	}
 
 	int p = 1;
 	for (map<int, string>::iterator it = ram.begin(); it != ram.end(); it++) {
 		int add = it->first;
 		string dat = it->second;
-		cout << dat;
+		out << dat;
 		p = (p + 1) % 2;
-		if (p == 1) cout << " ";
+		if (p == 1) out << " ";
 	}
 }
 
